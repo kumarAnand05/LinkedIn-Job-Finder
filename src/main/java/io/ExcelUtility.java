@@ -8,9 +8,17 @@ public class ExcelUtility {
 
     public void compileJobData(StringBuilder collectedData){
 
+        // Create directory if it doesn't exist
+        String directoryPath = "src" + File.separator + "CollectedJobData";
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
         // Filename and filepath of the csv
         String fileName = "Job Listings ("+ LocalDate.now() +").csv";
-        String filePath = "CollectedJobData"+File.separator+fileName;
+        String filePath = directoryPath+ File.separator+fileName;
+
 
         StringBuilder newJobData = new StringBuilder();
         StringBuilder existingData = new StringBuilder();

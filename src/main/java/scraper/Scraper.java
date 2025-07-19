@@ -25,6 +25,10 @@ public class Scraper {
         if(driver.getTitle().contains("Log In")){
             jobSearchPage.handleLoginPage();
         }
+        
+        jobSearchPage.handleLoginPopup();
+        
+
 
         // Filling all user details
         jobSearchPage.fillJobRole(userInput.jobRole);

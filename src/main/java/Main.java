@@ -1,6 +1,5 @@
 import io.ExcelUtility;
 import io.UserInput;
-import org.openqa.selenium.WebDriverException;
 import scraper.Scraper;
 
 
@@ -14,15 +13,8 @@ public class Main {
         UserInput userInput = new UserInput();
         userInput.takeUserInput();
 
-        // Starting scraper
-        try {
-            Scraper scraper = new Scraper();
-            jobData = scraper.startScraping(userInput);
-        }
-        catch (WebDriverException internetDisconnected){
-            System.out.println("Please connect to internet and try again");
-            System.exit(-1);
-        }
+        Scraper scraper = new Scraper();
+        jobData = scraper.startScraping(userInput);
 
         // Creating csv from the data
         new ExcelUtility().compileJobData(jobData);

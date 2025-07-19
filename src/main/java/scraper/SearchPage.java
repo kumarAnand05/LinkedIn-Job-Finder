@@ -1,9 +1,6 @@
 package scraper;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.ElementNotInteractableException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import java.util.ArrayList;
@@ -29,6 +26,10 @@ public class SearchPage extends Driver{
      * Stores the number of job details collected
      */
     static int numberOfJobsFound = 0;
+
+    // add finding weblement for popup to login to continue to search jobs
+    @FindBy(xpath = "//*[@id=\"base-contextual-sign-in-modal\"]/div/section/button")
+    WebElement loginPopup;
 
 
     /**
@@ -145,13 +146,34 @@ public class SearchPage extends Driver{
         catch (InterruptedException ignored){
         }
     }
+    
+    /**
+     * Function to check if login popup is visible and close it if displayed
+     */
+    public void handleLoginPopup() {
+
+        try {
+            pauseFor(1);
+            if(loginPopup.isDisplayed()) {
+                System.out.println("Login popup appeared, closing it...");
+                loginPopup.click();
+                System.out.println("Login popup closed successfully.");
+                pauseFor(2);
+            }
+            else {
+                System.out.println("No login popup appeared.");
+            }
+        } catch (NoSuchElementException | TimeoutException e) {
+            // Ignore if popup is not found
+        }
+    }
 
 
     /**
      * Opens the job page in case asked for login
      */
-    public void handleLoginPage(){
-
+    public void handleLoginPage()
+    {
         for(WebElement navigationOption: loginNavigationOptions){
             try {
                 if(navigationOption.getText().strip().contains("Jobs")){
@@ -355,7 +377,7 @@ public class SearchPage extends Driver{
 
         // Storing the data if JDFilter is off or JD matches user specified input values.
         StringBuilder jobData = new StringBuilder();
-        jobData.append(jobRoleElement.getText().strip()).append(",");
+        jobData.append(jobRoleElement.getText().strip().replace(",","")).append(",");
         jobData.append(companyNameElement.getText().strip().replace(",", "")).append(",");
         jobData.append(getSeniorityCriteria()).append(",");
         jobData.append(jobLocationElement.getText().strip().split(",")[0]).append(",");
@@ -365,7 +387,7 @@ public class SearchPage extends Driver{
             return false;
         }
 
-        jobData.append(postTimeElement.getText().strip()).append(",");
+        jobData.append(postTimeElement.getText().strip().replace(",", "")).append(",");
         jobData.append(numberOfApplicantElement.getText().strip().replace(",", "")).append(",");
         jobData.append(jobLinkElement.getAttribute("href")).append("\n");
 
@@ -430,6 +452,14 @@ public class SearchPage extends Driver{
             // By passing the job listing in case it is not accessible
             catch (NoSuchElementException | TimeoutException jobNotAccessible){
                 System.out.println("Unable to scan one job details. Bypassing...");
+                unexpectedError++;
+            }
+            catch (WebDriverException internetIssue){
+                System.out.println("Unable to scan one job details due to network issue. Bypassing...");
+                unexpectedError++;
+            }
+            catch (IndexOutOfBoundsException unknownError){
+                System.out.println("Unable to access next jobs");
                 unexpectedError++;
             }
 
